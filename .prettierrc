@@ -1,0 +1,27 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "auto",
+  "tabWidth": 2,
+  "printWidth": 120,
+  "importOrder": [
+    "^@nestjs/(.*)$",
+    "^@apollo/(.*)$",
+    "compression",
+    "request-context",
+    "^@config/(.*)$",
+    "^@common/(.*)$",
+    "^@base/(.*)$",
+    "^@guards/(.*)$",
+    "^@exceptions/(.*)$",
+    "^@middleware/(.*)$",
+    "^@strategies/(.*)$",
+    "^@providers/(.*)$",
+    "^@decorators/(.*)$",
+    "^@shared/(.*)$",
+    "^@logger/(.*)$",
+    "^@(.*)/(.*)$",
+    "^[./]"
+  ],
+  "plugins": ["prettier-plugin-organize-imports"]
+}

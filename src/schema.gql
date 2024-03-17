@@ -1,0 +1,176 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserDto {
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  id: UUID!
+  email: EmailAddress!
+  firstName: String!
+  lastName: String!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+"""
+A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier.
+"""
+scalar UUID
+
+"""
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
+"""
+scalar EmailAddress @specifiedBy(url: "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address")
+
+type UserPage {
+  """
+  Current page that records were queried
+  """
+  page: Int!
+
+  """
+  The maximum records will be displayed on each of the pages
+  """
+  take: Int!
+
+  """
+  The maximum records found
+  """
+  itemCount: Int!
+
+  """
+  The total page count
+  """
+  pageCount: Int!
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+
+  """
+  A list of data
+  """
+  data: [UserDto!]!
+}
+
+type LoginResponseDto {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type MotocycleDto {
+  brand: Brand!
+  products: [ProductDto!]!
+}
+
+enum Brand {
+  HONDA
+  YAMAHA
+}
+
+type MotocyclePage {
+  """
+  Current page that records were queried
+  """
+  page: Int!
+
+  """
+  The maximum records will be displayed on each of the pages
+  """
+  take: Int!
+
+  """
+  The maximum records found
+  """
+  itemCount: Int!
+
+  """
+  The total page count
+  """
+  pageCount: Int!
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+
+  """
+  A list of data
+  """
+  data: [MotocycleDto!]!
+}
+
+type ProductDto {
+  name: String!
+  brand: Brand!
+}
+
+type Query {
+  getUsers(queryParams: PageOptionsDto): UserPage!
+  getMotocycles(queryParams: PageOptionsDto): MotocyclePage!
+}
+
+input PageOptionsDto {
+  """
+  The order of the records
+  """
+  order: Sort = DESC
+
+  """
+  Current page that records will be queried
+  """
+  page: Int = 1
+
+  """
+  The quantity of records
+  """
+  take: Int = 30
+
+  """
+  The search text will be applied
+  """
+  q: String
+
+  """
+  Set value for this to query the soft deleted records
+  """
+  isDeleted: BooleanEnum
+
+  """
+  A list of record's IDs
+  """
+  ids: [String!]
+
+  """
+  Enable to TRUE to query all of the records
+  """
+  selectAll: BooleanEnum
+}
+
+enum Sort {
+  ASC
+  DESC
+}
+
+enum BooleanEnum {
+  TRUE
+  FALSE
+}
+
+type Mutation {
+  register(payload: RegisterDto!): Int!
+  login(payload: LoginDto!): LoginResponseDto!
+  refreshToken(accessToken: String!): LoginResponseDto!
+}
+
+input RegisterDto {
+  email: EmailAddress!
+  firstName: String!
+  lastName: String!
+  password: String!
+}
+
+input LoginDto {
+  email: EmailAddress!
+  password: String!
+}
