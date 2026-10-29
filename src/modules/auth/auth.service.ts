@@ -98,6 +98,9 @@ export class AuthService {
         refreshToken,
       };
     } catch (e) {
+      if (e instanceof UnauthorizedException) {
+        throw e;
+      }
       throw new InternalServerErrorException(e);
     }
   }
