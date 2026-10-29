@@ -1,0 +1,36 @@
+version: 2.1
+
+jobs:
+  ci:
+    docker:
+      - image: cimg/node:22.23.4
+    environment:
+      HUSKY: '0'
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-yarn-{{ checksum "yarn.lock" }}
+            - v1-yarn-
+      - run:
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: v1-yarn-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run:
+          name: Lint
+          command: yarn lint:ci
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Unit tests
+          command: yarn test --ci --coverage=false
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - ci

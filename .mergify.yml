@@ -1,0 +1,130 @@
+shared:
+  not_closed: &not_closed
+    not:
+      or:
+        - closed
+        - merged
+  low_risk: &low_risk
+    and:
+      - head~=^chore/
+      - or:
+          - label=chore
+          - label=documentation
+  supported_target: &supported_target
+    or:
+      - base=main
+      - base~=^CU-
+      - base~=^feature/
+
+  allowed_head_branches: &allowed_head_branches
+    or:
+      - head~=^CU-
+      - head~=^hotfix/
+      - head~=^fix/
+      - head~=^feat/
+      - head~=^feature/
+      - head~=^chore/
+      - head~=^refactor/
+      - head~=^enhance/
+      - head~=^test/
+      - head~=^release/
+      - head~=^cursor/
+
+  has_approved_reviews: &has_approved_reviews
+    "#approved-reviews-by >= 2"
+
+merge_protections_settings:
+  auto_merge_conditions:
+    - *supported_target
+    - *not_closed
+    - -draft
+    - -conflict
+    - or:
+        - *low_risk
+        - *allowed_head_branches
+
+merge_protections:
+  - name: require approval for allowed head branches PRs
+    if:
+      - *supported_target
+      - *allowed_head_branches
+      - not: *low_risk
+    success_conditions:
+      - *has_approved_reviews
+
+queue_rules:
+  - name: merge the PR to main or clickup branch
+    queue_conditions:
+      - or:
+          - base=main
+          - base~=^CU-
+      - -draft
+      - *not_closed
+      - -conflict
+      - *allowed_head_branches
+      - or:
+          - *low_risk
+          - *has_approved_reviews
+      - "check-success=ci/circleci: ci"
+    merge_method: merge
+    update_method: rebase
+
+  - name: implementation to epic branch
+    queue_conditions:
+      - base~=^feature/
+      - -draft
+      - *not_closed
+      - -conflict
+      - *allowed_head_branches
+      - or:
+          - *low_risk
+          - *has_approved_reviews
+      - "check-success=ci/circleci: ci"
+    merge_method: squash
+    update_method: rebase
+
+pull_request_rules:
+  - name: auto rebase the PR when commits are behind
+    conditions:
+      - *allowed_head_branches
+      - "#commits-behind > 0"
+      - -draft
+      - *not_closed
+      - -conflict
+    actions:
+      rebase:
+        bot_account: "{{ author }}"
+
+  - name: sync feature branches with main
+    conditions:
+      - base=main
+      - head~=^feature/
+      - "#commits-behind > 0"
+      - *not_closed
+      - -conflict
+    actions:
+      update:
+        bot_account: kimtaizigvy
+
+  - name: notify when automatic rebase fails
+    conditions:
+      - *allowed_head_branches
+      - *not_closed
+      - -draft
+      - conflict
+    actions:
+      label:
+        toggle:
+          - conflict-resolution-needed
+
+  - name: assign PR to its author
+    conditions:
+      - *not_closed
+      - "#assignee=0"
+    actions:
+      assign:
+        add_users:
+          - "{{ author }}"
+      request_reviews:
+        users:
+          - kimtaizigvy
